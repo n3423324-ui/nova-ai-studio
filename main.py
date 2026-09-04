@@ -27,14 +27,13 @@ def home(
 ):
 
     projects = db.query(Project).all()
-
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "projects": projects
-        }
-    )
+return templates.TemplateResponse(
+    request=request,
+    name="index.html",
+    context={
+        "projects": projects
+    }
+)
 
 
 @app.get("/create")
