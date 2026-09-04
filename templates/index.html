@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NOVA AI STUDIO</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+<h1>🌟 NOVA AI STUDIO</h1>
+
+<p>
+Create safe educational videos for kids
+</p>
+
+
+<a href="/create">
+
+<button>
+🎬 Create New Video
+</button>
+
+</a>
+
+
+<h2>📁 My Projects</h2>
+
+
+{% for project in projects %}
+
+<div>
+
+<h3>
+{{ project.title }}
+</h3>
+
+<p>
+Status:
+{{ project.status }}
+</p>
+
+</div>
+
+<hr>
+
+{% endfor %}
+
+
+</body>
+</html>
