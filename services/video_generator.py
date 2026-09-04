@@ -1,4 +1,5 @@
 import os
+import uuid
 import json
 
 
@@ -7,16 +8,14 @@ def create_video(
     voice
 ):
 
-    folder = "media"
-
     os.makedirs(
-        folder,
+        "media/videos",
         exist_ok=True
     )
 
 
-    video_file = (
-        f"{folder}/video_project.json"
+    filename = (
+        f"media/videos/{uuid.uuid4()}.json"
     )
 
 
@@ -28,13 +27,20 @@ def create_video(
 
 
     with open(
-        video_file,
+        filename,
         "w",
         encoding="utf-8"
-    ) as f:
+    ) as file:
 
         json.dump(
             data,
+            file,
+            ensure_ascii=False,
+            indent=4
+        )
+
+
+    return filename            data,
             f,
             ensure_ascii=False,
             indent=4
