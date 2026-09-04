@@ -1,3 +1,8 @@
+import json
+
+from services.scene_generator import generate_scenes
+from services.image_generator import generate_image_prompts
+
 from fastapi import FastAPI, Request, Depends, Form
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -84,7 +89,20 @@ def create_project(
     db.add(project)
     db.commit()
     db.refresh(project)
+scenes = generate_scenes(script)
 
+image_prompts = generate_image_prompts(
+    scenes
+)
+
+project.images = json.dumps(
+    image_prompts,
+    ensure_ascii=False
+)
+
+project.status = "Images Ready"
+
+db.commit()
 
     return {
         "message": "Project created successfully",
