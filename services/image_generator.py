@@ -1,31 +1,29 @@
-import json
-
-
 def generate_image_prompts(scenes):
 
     images = []
 
-    for index, scene in enumerate(scenes, start=1):
+    for scene in scenes:
 
-        prompt = {
-            "scene": index,
-            "prompt": f"""
-Create a colorful children's animation scene.
+        prompt = f"""
+Children animation scene.
 
 Style:
-3D cartoon, friendly, safe for kids age 3-6.
+3D cartoon,
+bright colors,
+friendly characters,
+safe for kids.
 
-Scene description:
-{scene}
-
-Characters:
-NOVA the little explorer.
-
-Mood:
-Happy, educational, magical.
+Scene:
+{scene['description']}
 """
-        }
 
-        images.append(prompt)
+
+        images.append(
+            {
+                "scene": scene["scene_number"],
+                "prompt": prompt.strip()
+            }
+        )
+
 
     return images
