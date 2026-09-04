@@ -103,7 +103,7 @@ class Project(Base):
     status = Column(
         String(50),
         default="Draft"
-    )    )
+    )    
 
 
     duration = Column(
