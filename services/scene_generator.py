@@ -5,15 +5,21 @@ def generate_scenes(script):
 
     scenes = []
 
-    parts = re.split(
-        r"Scene \d+:",
-        script
+    matches = re.findall(
+        r"Scene\s+\d+:(.*?)(?=Scene\s+\d+:|MESSAGE:|$)",
+        script,
+        re.DOTALL
     )
 
-    for part in parts:
-        text = part.strip()
 
-        if text and not text.startswith("🌟"):
-            scenes.append(text)
+    for index, text in enumerate(matches, start=1):
+
+        scenes.append(
+            {
+                "scene_number": index,
+                "description": text.strip()
+            }
+        )
+
 
     return scenes
