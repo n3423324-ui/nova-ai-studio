@@ -1,32 +1,31 @@
 import os
+import uuid
 
 
 def generate_voice(script, language):
 
-    folder = "media"
-
     os.makedirs(
-        folder,
+        "media/voices",
         exist_ok=True
     )
 
 
-    voice_file = (
-        f"{folder}/voice.txt"
+    filename = (
+        f"media/voices/{uuid.uuid4()}.txt"
     )
 
 
     with open(
-        voice_file,
+        filename,
         "w",
         encoding="utf-8"
-    ) as f:
+    ) as file:
 
-        f.write(
+        file.write(
             f"Language: {language}\n\n"
         )
 
-        f.write(script)
+        file.write(script)
 
 
-    return voice_file
+    return filename
