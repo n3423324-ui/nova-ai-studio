@@ -1,40 +1,51 @@
 import os
 import uuid
+import asyncio
 
-from openai import OpenAI
+import edge_tts
 
 
 def generate_voice(
-    script,
+    text,
     language
 ):
 
-    api_key = os.getenv(
-        "OPENAI_API_KEY"
-    )
-
-    if not api_key:
-
-        raise RuntimeError(
-            "OPENAI_API_KEY is not configured"
-        )
-
-
-    client = OpenAI(
-        api_key=api_key
-    )
-
-
     os.makedirs(
-        "media/voices",
+        "media/audio",
         exist_ok=True
     )
 
+    voices = {
+        "English": "en-US-AvaMultilingualNeural",
+        "Arabic": "ar-SA-HamedNeural"
+    }
+
+    voice = voices.get(
+        language,
+        "en-US-AvaMultilingualNeural"
+    )
 
     filename = (
-        f"media/voices/"
+        f"media/audio/"
         f"{uuid.uuid4().hex}.mp3"
     )
+
+    async def create_audio():
+
+        communicate = edge_tts.Communicate(
+            text=text,
+            voice=voice
+        )
+
+        await communicate.save(
+            filename
+        )
+
+    asyncio.run(
+        create_audio()
+    )
+
+    return filename    )
 
 
     instructions = f"""
