@@ -1,29 +1,24 @@
 import os
-import base64
-import uuid
 
-from openai import OpenAI
+from groq import Groq
 
 
 def generate_image_prompts(scenes):
 
-    images = []
-
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv(
+        "GROQ_API_KEY"
+    )
 
     if not api_key:
         raise RuntimeError(
-            "OPENAI_API_KEY is not configured"
+            "GROQ_API_KEY is not configured"
         )
 
-    client = OpenAI(
+    client = Groq(
         api_key=api_key
     )
 
-    os.makedirs(
-        "media/images",
-        exist_ok=True
-    )
+    images = []
 
     for scene in scenes:
 
@@ -31,10 +26,61 @@ def generate_image_prompts(scenes):
         description = scene["description"]
 
         prompt = f"""
-Create a high quality children's animated movie image.
+Create a detailed image-generation prompt for a
+children's animated movie scene.
 
-Style:
-3D animated cartoon,
+Scene description:
+{description}
+
+Requirements:
+- High-quality 3D animated cartoon style.
+- Colorful and cinematic.
+- Friendly and safe for children.
+- Educational atmosphere.
+- Consistent character appearance.
+- Bright lighting.
+- Professional animated movie quality.
+- No text or letters inside the image.
+
+Return only the final image-generation prompt.
+"""
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert prompt writer "
+                        "for children's animated movies."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=500
+        )
+
+        image_prompt = (
+            response
+            .choices[0]
+            .message
+            .content
+            .strip()
+        )
+
+        images.append(
+            {
+                "scene": scene_number,
+                "prompt": image_prompt,
+                "image_path": None
+            }
+        )
+
+    return images3D animated cartoon,
 cinematic,
 colorful,
 bright,
