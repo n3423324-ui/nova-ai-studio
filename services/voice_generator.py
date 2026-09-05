@@ -1,8 +1,29 @@
 import os
 import uuid
 
+from openai import OpenAI
 
-def generate_voice(script, language):
+
+def generate_voice(
+    script,
+    language
+):
+
+    api_key = os.getenv(
+        "OPENAI_API_KEY"
+    )
+
+    if not api_key:
+
+        raise RuntimeError(
+            "OPENAI_API_KEY is not configured"
+        )
+
+
+    client = OpenAI(
+        api_key=api_key
+    )
+
 
     os.makedirs(
         "media/voices",
@@ -11,21 +32,37 @@ def generate_voice(script, language):
 
 
     filename = (
-        f"media/voices/{uuid.uuid4()}.txt"
+        f"media/voices/"
+        f"{uuid.uuid4().hex}.mp3"
     )
 
 
-    with open(
-        filename,
-        "w",
-        encoding="utf-8"
-    ) as file:
+    instructions = f"""
+Speak clearly and warmly.
 
-        file.write(
-            f"Language: {language}\n\n"
-        )
+This is a children's educational story.
 
-        file.write(script)
+Language:
+{language}
+
+Use a friendly,
+gentle,
+enthusiastic storytelling voice.
+"""
+
+
+    response = client.audio.speech.create(
+        model="gpt-4o-mini-tts",
+        voice="nova",
+        input=script,
+        instructions=instructions,
+        response_format="mp3"
+    )
+
+
+    response.write_to_file(
+        filename
+    )
 
 
     return filename
