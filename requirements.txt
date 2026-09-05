@@ -1,8 +1,8 @@
 fastapi
-uvicorn[standard]
+uvicorn
 jinja2
-python-multipart
 sqlalchemy
-openai
+python-multipart
+groq
 moviepy
 pillow
