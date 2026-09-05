@@ -25,7 +25,7 @@ def generate_script(
     )
 
     prompt = f"""
-Create a complete children's educational story.
+Create a complete educational children's story.
 
 Title: {title}
 Main idea: {idea}
@@ -35,6 +35,81 @@ Approximate duration: {duration}
 
 Requirements:
 
+- The story must be safe for children.
+- Use simple language appropriate for the target age.
+- Make the story fun and educational.
+- Divide the story into clear scenes.
+- Each scene should be visually descriptive.
+- Include a beginning, middle, and ending.
+- Include a positive educational message.
+- Do not include violence, fear, or inappropriate content.
+
+Use exactly this format:
+
+NOVA KIDS STORY
+
+TITLE:
+[title]
+
+AGE GROUP:
+[age]
+
+LANGUAGE:
+[language]
+
+DURATION:
+[duration]
+
+STORY:
+
+Scene 1:
+[story scene]
+
+Scene 2:
+[story scene]
+
+Scene 3:
+[story scene]
+
+Scene 4:
+[story scene]
+
+Scene 5:
+[story scene]
+
+MESSAGE:
+[positive educational lesson]
+
+THE END
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a professional writer "
+                    "of safe and educational children's stories."
+                )
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.8,
+        max_tokens=2000
+    )
+
+    script = (
+        response
+        .choices[0]
+        .message
+        .content
+    )
+
+    return script
 - The story must be safe for children.
 - Use simple language appropriate for the target age.
 - Make the story fun, educational, and positive.
