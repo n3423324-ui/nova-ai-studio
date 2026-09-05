@@ -1,7 +1,8 @@
 fastapi
-uvicorn
+uvicorn[standard]
 jinja2
-sqlalchemy
 python-multipart
-python-dotenv
-psycopg2-binary
+sqlalchemy
+openai
+moviepy
+pillow
