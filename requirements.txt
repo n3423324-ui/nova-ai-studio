@@ -3,6 +3,6 @@ uvicorn
 jinja2
 sqlalchemy
 python-multipart
-groq
+openai
 moviepy
 pillow
