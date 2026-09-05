@@ -1,10 +1,15 @@
 import os
 import uuid
-import json
+
+from moviepy import (
+    ImageClip,
+    AudioFileClip,
+    concatenate_videoclips
+)
 
 
 def create_video(
-    image_prompts,
+    images,
     voice
 ):
 
@@ -14,27 +19,74 @@ def create_video(
     )
 
 
-    filename = (
-        f"media/videos/{uuid.uuid4()}.json"
+    audio = AudioFileClip(
+        voice
     )
 
 
-    data = {
-        "images": image_prompts,
-        "voice": voice,
-        "status": "ready"
-    }
+    image_duration = (
+        audio.duration / len(images)
+    )
 
 
-    with open(
+    clips = []
+
+
+    for image in images:
+
+        image_path = image[
+            "image_path"
+        ]
+
+
+        clip = (
+            ImageClip(image_path)
+            .with_duration(image_duration)
+        )
+
+
+        clips.append(
+            clip
+        )
+
+
+    video = concatenate_videoclips(
+        clips,
+        method="compose"
+    )
+
+
+    video = video.with_audio(
+        audio
+    )
+
+
+    filename = (
+        f"media/videos/"
+        f"{uuid.uuid4().hex}.mp4"
+    )
+
+
+    video.write_videofile(
         filename,
-        "w",
-        encoding="utf-8"
-    ) as file:
+        fps=24,
+        codec="libx264",
+        audio_codec="aac"
+    )
 
-        json.dump(
-            data,
-            file,
+
+    audio.close()
+
+
+    for clip in clips:
+
+        clip.close()
+
+
+    video.close()
+
+
+    return filename            file,
             ensure_ascii=False,
             indent=4
         )
