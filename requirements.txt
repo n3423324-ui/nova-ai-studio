@@ -8,3 +8,9 @@ requests
 edge-tts
 moviepy
 pillow
+gTTS
+moviepy
+Pillow
+fastapi
+uvicorn
+requests
