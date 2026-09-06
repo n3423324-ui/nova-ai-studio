@@ -4,95 +4,83 @@ import uuid
 from gtts import gTTS
 
 
-def generate_voice(
+def get_language_code(language):
+
+    language_map = {
+        "English": "en",
+        "Arabic": "ar",
+        "العربية": "ar",
+        "French": "fr",
+        "Spanish": "es",
+        "German": "de"
+    }
+
+    return language_map.get(
+        language,
+        "en"
+    )
+
+
+def generate_voice_for_scene(
     text,
     language
 ):
 
     if not text:
         raise ValueError(
-            "No text provided for voice generation"
+            "Scene text is empty"
         )
-
 
     os.makedirs(
         "media/audio",
         exist_ok=True
     )
 
-
-    # ----------------------------------
-    # تحديد اللغة
-    # ----------------------------------
-
-    if language.lower() == "arabic":
-
-        voice_language = "ar"
-
-    else:
-
-        voice_language = "en"
-
-
-    # ----------------------------------
-    # اسم الملف
-    # ----------------------------------
+    lang_code = get_language_code(
+        language
+    )
 
     filename = (
         "media/audio/"
         f"{uuid.uuid4().hex}.mp3"
     )
 
+    tts = gTTS(
+        text=text,
+        lang=lang_code,
+        slow=False
+    )
 
-    # ----------------------------------
-    # إنشاء الصوت
-    # ----------------------------------
-
-    try:
-
-        tts = gTTS(
-
-            text=text,
-
-            lang=voice_language,
-
-            slow=False
-
-        )
-
-
-        tts.save(
-            filename
-        )
-
-
-    except Exception as error:
-
-        raise RuntimeError(
-            f"Voice generation failed: {error}"
-        )
-
-
-    # ----------------------------------
-    # التحقق من الملف
-    # ----------------------------------
-
-    if not os.path.exists(
+    tts.save(
         filename
-    ):
-
-        raise RuntimeError(
-            "Voice file was not created"
-        )
-
-
-    if os.path.getsize(
-        filename
-    ) == 0:
-
-        raise RuntimeError(
-            "Generated voice file is empty"
-        )
-
+    )
 
     return filename
+
+
+def generate_scene_voices(
+    scenes,
+    language
+):
+
+    voices = []
+
+    for scene in scenes:
+
+        voice_path = (
+            generate_voice_for_scene(
+                scene["description"],
+                language
+            )
+        )
+
+        voices.append(
+            {
+                "scene_number": (
+                    scene["scene_number"]
+                ),
+                "voice_path": voice_path
+            }
+        )
+
+    return voices
