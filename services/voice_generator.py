@@ -1,44 +1,98 @@
 import os
 import uuid
+
 from gtts import gTTS
 
 
-def generate_voice(script, language="English"):
+def generate_voice(
+    text,
+    language
+):
 
-    if not script or not script.strip():
-        raise ValueError("Script is empty")
+    if not text:
+        raise ValueError(
+            "No text provided for voice generation"
+        )
+
 
     os.makedirs(
         "media/audio",
         exist_ok=True
     )
 
-    language_map = {
-        "English": "en",
-        "Arabic": "ar",
-        "German": "de",
-        "French": "fr",
-        "Spanish": "es"
-    }
 
-    lang_code = language_map.get(
-        language,
-        "en"
-    )
+    # ----------------------------------
+    # تحديد اللغة
+    # ----------------------------------
+
+    if language.lower() == "arabic":
+
+        voice_language = "ar"
+
+    else:
+
+        voice_language = "en"
+
+
+    # ----------------------------------
+    # اسم الملف
+    # ----------------------------------
 
     filename = (
-        f"media/audio/"
+        "media/audio/"
         f"{uuid.uuid4().hex}.mp3"
     )
 
-    tts = gTTS(
-        text=script,
-        lang=lang_code,
-        slow=False
-    )
 
-    tts.save(
+    # ----------------------------------
+    # إنشاء الصوت
+    # ----------------------------------
+
+    try:
+
+        tts = gTTS(
+
+            text=text,
+
+            lang=voice_language,
+
+            slow=False
+
+        )
+
+
+        tts.save(
+            filename
+        )
+
+
+    except Exception as error:
+
+        raise RuntimeError(
+            f"Voice generation failed: {error}"
+        )
+
+
+    # ----------------------------------
+    # التحقق من الملف
+    # ----------------------------------
+
+    if not os.path.exists(
         filename
-    )
+    ):
+
+        raise RuntimeError(
+            "Voice file was not created"
+        )
+
+
+    if os.path.getsize(
+        filename
+    ) == 0:
+
+        raise RuntimeError(
+            "Generated voice file is empty"
+        )
+
 
     return filename
