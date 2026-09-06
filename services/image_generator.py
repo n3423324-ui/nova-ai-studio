@@ -1,121 +1,139 @@
 import os
 import uuid
+import base64
 
 import requests
-from groq import Groq
 
 
 def generate_image_prompts(scenes):
 
-    groq_api_key = os.getenv("GROQ_API_KEY")
-    account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
-    api_token = os.getenv("CLOUDFLARE_API_TOKEN")
+    images = []
 
-    if not groq_api_key:
-        raise RuntimeError("GROQ_API_KEY is not configured")
+    account_id = os.getenv(
+        "CLOUDFLARE_ACCOUNT_ID"
+    )
+
+    api_token = os.getenv(
+        "CLOUDFLARE_API_TOKEN"
+    )
 
     if not account_id:
-        raise RuntimeError("CLOUDFLARE_ACCOUNT_ID is not configured")
+        raise RuntimeError(
+            "CLOUDFLARE_ACCOUNT_ID is not configured"
+        )
 
     if not api_token:
-        raise RuntimeError("CLOUDFLARE_API_TOKEN is not configured")
+        raise RuntimeError(
+            "CLOUDFLARE_API_TOKEN is not configured"
+        )
 
-    groq_client = Groq(api_key=groq_api_key)
+    os.makedirs(
+        "media/images",
+        exist_ok=True
+    )
 
-    os.makedirs("media/images", exist_ok=True)
+    url = (
+        "https://api.cloudflare.com/client/v4/"
+        f"accounts/{account_id}/"
+        "ai/run/@cf/black-forest-labs/"
+        "flux-1-schnell"
+    )
 
-    images = []
+    headers = {
+        "Authorization": (
+            f"Bearer {api_token}"
+        ),
+        "Content-Type": (
+            "application/json"
+        )
+    }
 
     for scene in scenes:
 
-        scene_number = scene["scene_number"]
-        description = scene["description"]
-
-        prompt_request = f"""
-Create a detailed image generation prompt for a children's animated movie.
-
-Scene description:
-{description}
-
-Requirements:
-- High quality 3D animated cartoon style
-- Colorful and cinematic
-- Friendly characters
-- Safe for children
-- Educational atmosphere
-- Consistent character appearance
-- Bright lighting
-- No text inside the image
-
-Return only the final image generation prompt.
-"""
-
-        response = groq_client.chat.completions.create(
-         model="openai/gpt-oss-20b",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You create professional image prompts "
-                        "for children's animated movies."
-                    )
-                },
-                {
-                    "role": "user",
-                    "content": prompt_request
-                }
-            ],
-            temperature=0.7,
-            max_tokens=500
+        scene_number = scene.get(
+            "scene_number",
+            1
         )
 
-        image_prompt = (
-            response.choices[0]
-            .message.content
-            .strip()
+        description = scene.get(
+            "description",
+            ""
         )
 
-        url = (
-            "https://api.cloudflare.com/client/v4/"
-            f"accounts/{account_id}/ai/run/"
-            "@cf/black-forest-labs/flux-1-schnell"
+        # منع الوصف الطويل جداً
+        description = description.strip()
+
+        if len(description) > 500:
+            description = description[:500]
+
+        prompt = (
+            "3D animated children's movie scene, "
+            "high quality cartoon animation, "
+            "colorful, bright, cinematic lighting, "
+            "friendly characters, safe for children, "
+            "educational, professional animation. "
+            f"Scene: {description}. "
+            "No text, no letters, no subtitles, "
+            "no watermark."
         )
 
-        headers = {
-            "Authorization": f"Bearer {api_token}",
-            "Content-Type": "application/json"
-        }
+        # حماية إضافية من تجاوز حد Cloudflare
+        if len(prompt) > 1500:
+            prompt = prompt[:1500]
 
-        payload = {
-            "prompt": image_prompt
-        }
-
-        result = requests.post(
+        response = requests.post(
             url,
             headers=headers,
-            json=payload,
+            json={
+                "prompt": prompt
+            },
             timeout=120
         )
 
-        if result.status_code != 200:
+        if not response.ok:
+
             raise RuntimeError(
-                f"Cloudflare image generation failed: "
-                f"{result.status_code} - {result.text}"
+                "Cloudflare image generation failed: "
+                + response.text
             )
 
+        try:
+
+            result = response.json()
+
+            image_data = (
+                result["result"]["image"]
+            )
+
+            image_bytes = base64.b64decode(
+                image_data
+            )
+
+        except Exception:
+
+            # في بعض استجابات Cloudflare
+            # تكون الصورة مباشرة
+            image_bytes = response.content
+
         filename = (
-            f"media/images/"
+            "media/images/"
             f"scene_{scene_number}_"
             f"{uuid.uuid4().hex}.png"
         )
 
-        with open(filename, "wb") as file:
-            file.write(result.content)
+        with open(
+            filename,
+            "wb"
+        ) as file:
+
+            file.write(
+                image_bytes
+            )
 
         images.append(
             {
                 "scene": scene_number,
-                "prompt": image_prompt,
+                "prompt": prompt,
                 "image_path": filename
             }
         )
