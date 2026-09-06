@@ -37,12 +37,13 @@ Duration: {duration}
 
 Requirements:
 
-- Create multiple scenes.
-- Make the story educational.
-- Use simple language suitable for children.
-- Keep the story safe and friendly.
-- Include a clear lesson.
-- Do not include harmful, scary, or inappropriate content.
+- Write a fun educational children's story.
+- Use simple language suitable for the selected age group.
+- Create at least 4 scenes.
+- Make the story safe and friendly for children.
+- Include an educational lesson.
+- Keep the main character consistent.
+- Do not include harmful or scary content.
 
 Use exactly this format:
 
@@ -61,29 +62,29 @@ Duration
 STORY:
 
 Scene 1:
-Scene description
+Description
 
 Scene 2:
-Scene description
+Description
 
 Scene 3:
-Scene description
+Description
 
 Scene 4:
-Scene description
+Description
 
 MESSAGE:
 Educational lesson
 """
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-20b",
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "You are an expert writer "
-                    "of educational children's stories."
+                    "You are an expert writer of safe, "
+                    "fun, educational children's stories."
                 )
             },
             {
