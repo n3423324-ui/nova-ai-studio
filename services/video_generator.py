@@ -1,4 +1,4 @@
-import os
+   import os
 import uuid
 
 from moviepy import (
@@ -8,21 +8,19 @@ from moviepy import (
 )
 
 
-def create_video(images, voice):
+def create_video(
+    images,
+    voices
+):
 
     if not images:
         raise ValueError(
-            "No images provided for video creation"
+            "No images provided"
         )
 
-    if not voice:
+    if not voices:
         raise ValueError(
-            "No voice file provided"
-        )
-
-    if not os.path.exists(voice):
-        raise FileNotFoundError(
-            f"Voice file not found: {voice}"
+            "No voice files provided"
         )
 
     os.makedirs(
@@ -31,99 +29,131 @@ def create_video(images, voice):
     )
 
     clips = []
-    audio = None
-    video = None
 
     try:
 
-        # تحميل الملف الصوتي
-        audio = AudioFileClip(
-            voice
-        )
+        image_map = {}
 
-        # حساب مدة كل صورة
-        image_duration = (
-            audio.duration / len(images)
-        )
-
-        # إنشاء مقطع لكل صورة
         for image in images:
 
-            image_path = image.get(
-                "image_path"
+            scene_number = (
+                image.get("scene")
+            )
+
+            image_map[
+                scene_number
+            ] = image
+
+        for voice_data in voices:
+
+            scene_number = (
+                voice_data[
+                    "scene_number"
+                ]
+            )
+
+            voice_path = (
+                voice_data[
+                    "voice_path"
+                ]
+            )
+
+            if scene_number not in image_map:
+
+                continue
+
+            image_path = (
+                image_map[
+                    scene_number
+                ].get(
+                    "image_path"
+                )
             )
 
             if not image_path:
+
                 raise ValueError(
-                    "image_path is missing from image data"
+                    f"Image missing for scene "
+                    f"{scene_number}"
                 )
 
-            if not os.path.exists(image_path):
+            if not os.path.exists(
+                image_path
+            ):
+
                 raise FileNotFoundError(
-                    f"Image file not found: {image_path}"
+                    f"Image not found: "
+                    f"{image_path}"
                 )
 
-            clip = (
-                ImageClip(image_path)
-                .with_duration(image_duration)
+            if not os.path.exists(
+                voice_path
+            ):
+
+                raise FileNotFoundError(
+                    f"Voice not found: "
+                    f"{voice_path}"
+                )
+
+            audio = AudioFileClip(
+                voice_path
+            )
+
+            duration = (
+                audio.duration
+            )
+
+            clip = ImageClip(
+                image_path
+            ).with_duration(
+                duration
+            )
+
+            clip = clip.with_audio(
+                audio
             )
 
             clips.append(
                 clip
             )
 
-        # دمج مقاطع الصور
-        video = concatenate_videoclips(
-            clips,
-            method="compose"
+        if not clips:
+
+            raise ValueError(
+                "No video clips created"
+            )
+
+        final_video = (
+            concatenate_videoclips(
+                clips,
+                method="compose"
+            )
         )
 
-        # إضافة الصوت
-        video = video.with_audio(
-            audio
-        )
-
-        # إنشاء اسم فريد للفيديو
         filename = (
             "media/videos/"
             f"{uuid.uuid4().hex}.mp4"
         )
 
-        # حفظ الفيديو
-        video.write_videofile(
+        final_video.write_videofile(
             filename,
             codec="libx264",
             audio_codec="aac",
             fps=24
         )
 
+        final_video.close()
+
         return filename
 
     finally:
 
-        # إغلاق المقاطع
         for clip in clips:
 
             try:
+
                 clip.close()
 
             except Exception:
-                pass
 
-        # إغلاق الفيديو
-        if video is not None:
-
-            try:
-                video.close()
-
-            except Exception:
-                pass
-
-        # إغلاق الصوت
-        if audio is not None:
-
-            try:
-                audio.close()
-
-            except Exception:
                 pass
