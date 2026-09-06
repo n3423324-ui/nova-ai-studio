@@ -11,10 +11,14 @@ from moviepy import (
 def create_video(images, voice):
 
     if not images:
-        raise ValueError("No images provided for video creation")
+        raise ValueError(
+            "No images provided for video creation"
+        )
 
     if not voice:
-        raise ValueError("No voice file provided")
+        raise ValueError(
+            "No voice file provided"
+        )
 
     if not os.path.exists(voice):
         raise FileNotFoundError(
@@ -32,15 +36,17 @@ def create_video(images, voice):
 
     try:
 
-        # تحميل الصوت
-        audio = AudioFileClip(voice)
+        # Load audio
+        audio = AudioFileClip(
+            voice
+        )
 
-        # مدة كل صورة
+        # Calculate duration for each image
         image_duration = (
             audio.duration / len(images)
         )
 
-        # إنشاء المقاطع من الصور
+        # Create video clips from images
         for image in images:
 
             image_path = image.get(
@@ -58,62 +64,63 @@ def create_video(images, voice):
                 )
 
             clip = (
-                ImageClip(image_path)
-                .with_duration(image_duration)
+                ImageClip(
+                    image_path
+                )
+                .with_duration(
+                    image_duration
+                )
             )
 
-            clips.append(clip)
+            clips.append(
+                clip
+            )
 
-        # دمج الصور
+        # Combine image clips
         video = concatenate_videoclips(
             clips,
             method="compose"
         )
 
-        # إضافة الصوت
+        # Add audio
         video = video.with_audio(
             audio
         )
 
-        # اسم فريد للفيديو
-       filename = (
-        "media/videos/"
-        f"{uuid.uuid4().hex}.mp4"
-    )
+        # Create unique filename
+        filename = (
+            "media/videos/"
+            f"{uuid.uuid4().hex}.mp4"
+        )
 
-    video.write_videofile(
-        filename,
-        codec="libx264",
-        audio_codec="aac",
-        fps=24
-    )
-
-    audio.close()
-
-    for clip in clips:
-        clip.close()
-
-    video.close()
-
-    return filename
+        # Export video
+        video.write_videofile(
+            filename,
+            codec="libx264",
+            audio_codec="aac",
+            fps=24,
+            logger=None
+        )
 
         return filename
 
     finally:
 
-        # إغلاق المقاطع
+        # Close all image clips
         for clip in clips:
             try:
                 clip.close()
             except Exception:
                 pass
 
+        # Close final video
         if video is not None:
             try:
                 video.close()
             except Exception:
                 pass
 
+        # Close audio
         if audio is not None:
             try:
                 audio.close()
