@@ -3,20 +3,12 @@ import re
 
 def generate_scenes(script):
 
-    if not script:
-        raise ValueError(
-            "Script is empty"
-        )
-
     scenes = []
 
     pattern = (
-        r"Scene\s*(\d+)\s*:\s*"
-        r"(.*?)(?="
-        r"Scene\s*\d+\s*:|"
-        r"MESSAGE\s*:|"
-        r"THE END|"
-        r"$)"
+        r"(?:Scene|المشهد)\s+(\d+)\s*:"
+        r"(.*?)(?=(?:Scene|المشهد)\s+\d+\s*:|"
+        r"(?:MESSAGE|Message|الدرس)\s*:|$)"
     )
 
     matches = re.findall(
@@ -39,11 +31,5 @@ def generate_scenes(script):
                     "description": description
                 }
             )
-
-    if not scenes:
-
-        raise ValueError(
-            "No scenes found in generated script"
-        )
 
     return scenes
