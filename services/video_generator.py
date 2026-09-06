@@ -76,18 +76,26 @@ def create_video(images, voice):
         )
 
         # اسم فريد للفيديو
-        filename = (
-            f"media/videos/"
-            f"{uuid.uuid4().hex}.mp4"
-        )
+       filename = (
+        "media/videos/"
+        f"{uuid.uuid4().hex}.mp4"
+    )
 
-        # حفظ الفيديو
-        video.write_videofile(
-            filename,
-            fps=24,
-            codec="libx264",
-            audio_codec="aac"
-        )
+    video.write_videofile(
+        filename,
+        codec="libx264",
+        audio_codec="aac",
+        fps=24
+    )
+
+    audio.close()
+
+    for clip in clips:
+        clip.close()
+
+    video.close()
+
+    return filename
 
         return filename
 
