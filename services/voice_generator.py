@@ -1,44 +1,44 @@
 import os
 import uuid
-import asyncio
-
-import edge_tts
+from gtts import gTTS
 
 
-def generate_voice(text, language):
+def generate_voice(script, language="English"):
+
+    if not script or not script.strip():
+        raise ValueError("Script is empty")
 
     os.makedirs(
         "media/audio",
         exist_ok=True
     )
 
-    voices = {
-        "English": "en-US-AvaMultilingualNeural",
-        "Arabic": "ar-SA-HamedNeural"
+    language_map = {
+        "English": "en",
+        "Arabic": "ar",
+        "German": "de",
+        "French": "fr",
+        "Spanish": "es"
     }
 
-    voice = voices.get(
+    lang_code = language_map.get(
         language,
-        "en-US-AvaMultilingualNeural"
+        "en"
     )
 
     filename = (
-        f"media/audio/{uuid.uuid4().hex}.mp3"
+        f"media/audio/"
+        f"{uuid.uuid4().hex}.mp3"
     )
 
-    async def create_audio():
+    tts = gTTS(
+        text=script,
+        lang=lang_code,
+        slow=False
+    )
 
-        communicate = edge_tts.Communicate(
-            text=text,
-            voice=voice
-        )
-
-        await communicate.save(
-            filename
-        )
-
-    asyncio.run(
-        create_audio()
+    tts.save(
+        filename
     )
 
     return filename
