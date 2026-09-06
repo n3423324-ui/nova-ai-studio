@@ -18,75 +18,72 @@ def generate_script(
             "GROQ_API_KEY is not configured"
         )
 
-    client = Groq(api_key=api_key)
+    client = Groq(
+        api_key=api_key
+    )
 
     prompt = f"""
-Create a complete educational children's story.
+Create a complete children's educational story.
 
 Title: {title}
-Main idea: {idea}
-Target age: {age}
+
+Idea: {idea}
+
+Age Group: {age}
+
 Language: {language}
-Approximate duration: {duration}
+
+Duration: {duration}
 
 Requirements:
 
-- The story must be safe for children.
-- Use simple language appropriate for the target age.
-- Make the story fun and educational.
-- Divide the story into exactly five scenes.
-- Each scene should be visually descriptive.
-- Include a beginning, middle, and ending.
-- Include a positive educational message.
-- Do not include violence, fear, or inappropriate content.
+- Create multiple scenes.
+- Make the story educational.
+- Use simple language suitable for children.
+- Keep the story safe and friendly.
+- Include a clear lesson.
+- Do not include harmful, scary, or inappropriate content.
 
 Use exactly this format:
 
-NOVA KIDS STORY
-
 TITLE:
-[title]
+Story title
 
 AGE GROUP:
-[age]
+Age group
 
 LANGUAGE:
-[language]
+Language
 
 DURATION:
-[duration]
+Duration
 
 STORY:
 
 Scene 1:
-[story scene]
+Scene description
 
 Scene 2:
-[story scene]
+Scene description
 
 Scene 3:
-[story scene]
+Scene description
 
 Scene 4:
-[story scene]
-
-Scene 5:
-[story scene]
+Scene description
 
 MESSAGE:
-[positive educational lesson]
-
-THE END
+Educational lesson
 """
 
     response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "You are a professional writer of safe "
-                    "and educational children's stories."
+                    "You are an expert writer "
+                    "of educational children's stories."
                 )
             },
             {
@@ -94,8 +91,8 @@ THE END
                 "content": prompt
             }
         ],
-        temperature=0.8,
-        max_tokens=2000
+        temperature=0.7,
+        max_completion_tokens=2000
     )
 
     return response.choices[0].message.content
