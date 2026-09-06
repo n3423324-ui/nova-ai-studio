@@ -66,17 +66,37 @@ def generate_image_prompts(scenes):
         if len(description) > 500:
             description = description[:500]
 
-        prompt = (
-            "3D animated children's movie scene, "
-            "high quality cartoon animation, "
-            "colorful, bright, cinematic lighting, "
-            "friendly characters, safe for children, "
-            "educational, professional animation. "
-            f"Scene: {description}. "
-            "No text, no letters, no subtitles, "
-            "no watermark."
-        )
+        prompt = f"""
+Create a high quality 3D animated children's movie scene.
 
+Scene description:
+{description}
+
+Style:
+Professional Pixar-inspired 3D animation.
+Colorful.
+Cinematic.
+Friendly.
+Safe for children.
+Consistent characters.
+
+IMPORTANT:
+Do not generate any text.
+Do not generate subtitles.
+Do not generate captions.
+Do not generate letters.
+Do not generate words.
+Do not generate Arabic text.
+Do not generate English text.
+Do not generate logos.
+Do not generate signs containing readable text.
+The image must contain absolutely no writing.
+
+Only show the characters and the environment.
+
+Scene:
+{description}
+"""
         # حماية إضافية من تجاوز حد Cloudflare
         if len(prompt) > 1500:
             prompt = prompt[:1500]
